@@ -363,11 +363,10 @@
             </form>
             
             <div class="footer">
-                <p>System Diagnostic Node | <a href="#">Privacy Policy</a> | <a href="#">Terms of Service</a></p>
+                <p>System Diagnostic Node | <a href="privacypolicy.html">Privacy Policy</a> | <a href="terms&conditions.html">Terms of Service</a></p>
             </div>
         </div>
     </div>
-
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const serviceSelect = document.getElementById('serviceSelect');
@@ -414,6 +413,21 @@
                 executeBtn.disabled = !isValid;
             }
             
+            // Helper: Download File
+            function downloadReport(data) {
+                const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+                const filename = `DIAG_REPORT_${timestamp}.json`;
+                const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            }
+
             // Form submission
             form.addEventListener('submit', function(e) {
                 e.preventDefault();
@@ -421,25 +435,34 @@
                 const service = serviceSelect.value;
                 const customService = customServiceInput.value.trim();
                 const feedback = feedbackTextarea.value.trim();
-                
                 const targetService = service === 'custom' ? customService : service;
                 
-                // Simulate API Call
+                // Prepare Data Packet
+                const reportData = {
+                    protocol: "DIAGNOSTIC_NODE_V2.4",
+                    timestamp: new Date().toISOString(),
+                    target_architecture: targetService,
+                    flaw_description: feedback,
+                    status: "SUBMITTED"
+                };
+
+                // UI Loading State
                 const originalBtnContent = executeBtn.innerHTML;
-                
-                // Loading State
                 executeBtn.disabled = true;
-                executeBtn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Transmitting Data...';
-                executeBtn.style.borderColor = 'var(--text-muted)';
+                executeBtn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Processing...';
                 
+                // Simulate Processing Delay
                 setTimeout(() => {
-                    // Success State
+                    // 1. Download the file for the user
+                    downloadReport(reportData);
+                    
+                    // 2. Update UI to Success
                     executeBtn.style.background = '#10b981'; // Green
                     executeBtn.style.borderColor = '#10b981';
                     executeBtn.style.color = '#fff';
-                    executeBtn.innerHTML = '<i class="fas fa-check"></i> Report Logged Successfully';
+                    executeBtn.innerHTML = '<i class="fas fa-check"></i> Report Downloaded';
                     
-                    // Reset after delay
+                    // 3. Reset after delay
                     setTimeout(() => {
                         executeBtn.innerHTML = originalBtnContent;
                         executeBtn.style.background = '';
@@ -450,7 +473,7 @@
                         customInputGroup.style.display = 'none';
                     }, 3000);
                     
-                }, 1500);
+                }, 1000);
             });
         });
     </script>
