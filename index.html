@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diagnostic Node | Feedback Protocol</title>
+    <!-- Using Inter for UI and JetBrains Mono for Code/Data elements -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            /* Palette */
+            --bg-deep: #050b14;
+            --bg-surface: rgba(13, 20, 35, 0.75);
+            --bg-input: rgba(13, 20, 35, 0.5);
+            
+            --primary: #22d3ee; /* Cyan */
+            --primary-dim: rgba(34, 211, 238, 0.1);
+            --primary-glow: rgba(34, 211, 238, 0.4);
+            
+            --accent: #f87171; /* Red/Pink for alerts */
+            --accent-dim: rgba(248, 113, 113, 0.1);
+            
+            --text-main: #e2e8f0;
+            --text-muted: #94a3b8;
+            
+            --border-color: rgba(34, 211, 238, 0.2);
+            --radius: 12px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box; /* Fixed typo */
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-deep);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            color: var(--text-main);
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Subtle Grid Background */
+        body::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-image: 
+                linear-gradient(rgba(34, 211, 238, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(34, 211, 238, 0.03) 1px, transparent 1px);
+            background-size: 40px 40px;
+            z-index: -1;
+            mask-image: radial-gradient(circle at center, black 40%, transparent 100%);
+        }
+
+        .container {
+            width: 100%;
+            max-width: 680px;
+            perspective: 1000px;
+        }
+
+        /* Glassmorphism Container */
+        .neon-container {
+            position: relative;
+            width: 100%;
+            background: var(--bg-surface);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 48px;
+            box-shadow: 
+                0 20px 40px -10px rgba(0,0,0,0.5),
+                0 0 0 1px rgba(255,255,255,0.05) inset;
+            overflow: hidden;
+            animation: slideIn 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        /* Decorative Top Bar */
+        .status-bar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary), transparent 40%);
+        }
+
+        /* Header Badge */
+        .header-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--bg-input);
+            padding: 6px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 100px;
+            margin-bottom: 24px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--primary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        .pulse-dot {
+            width: 6px;
+            height: 6px;
+            background: var(--primary);
+            border-radius: 50%;
+            box-shadow: 0 0 8px var(--primary);
+            animation: pulse 2s infinite;
+        }
+
+        /* Instruction Block */
+        .instruction-block {
+            background: var(--accent-dim);
+            border-left: 3px solid var(--accent);
+            padding: 16px 20px;
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 32px;
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            transition: var(--transition);
+        }
+
+        .instruction-block:hover {
+            transform: translateX(4px);
+            background: rgba(248, 113, 113, 0.15);
+        }
+
+        .instruction-content h2 {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .instruction-content p {
+            font-size: 14px;
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+
+        /* Form Elements */
+        .form-group {
+            margin-bottom: 24px;
+            position: relative;
+        }
+
+        label {
+            display: block;
+            color: var(--text-muted);
+            font-size: 12px;
+            font-weight: 500;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        select, input, textarea {
+            width: 100%;
+            background: var(--bg-input);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: var(--text-main);
+            padding: 14px 16px;
+            font-size: 14px;
+            border-radius: 8px;
+            transition: var(--transition);
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* Custom Select Styling */
+        select {
+            appearance: none;
+            cursor: pointer;
+        }
+        
+        .select-icon {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            pointer-events: none;
+            font-size: 12px;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 140px;
+            line-height: 1.6;
+        }
+
+        /* Focus States */
+        select:focus, input:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: rgba(13, 20, 35, 0.8);
+            box-shadow: 0 0 0 4px var(--primary-dim);
+        }
+
+        /* Submit Button */
+        .submit-btn {
+            width: 100%;
+            background: linear-gradient(135deg, rgba(34, 211, 238, 0.1), rgba(34, 211, 238, 0.05));
+            border: 1px solid var(--primary);
+            color: var(--primary);
+            padding: 16px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+            font-size: 13px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .submit-btn:hover:not(:disabled) {
+            background: var(--primary);
+            color: var(--bg-deep);
+            box-shadow: 0 0 20px var(--primary-glow);
+            transform: translateY(-1px);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            border-color: rgba(255,255,255,0.1);
+            color: var(--text-muted);
+        }
+
+        /* Footer */
+        .footer {
+            margin-top: 32px;
+            text-align: center;
+            font-size: 12px;
+            color: rgba(255,255,255,0.3);
+            border-top: 1px solid rgba(255,255,255,0.05);
+            padding-top: 20px;
+        }
+
+        .footer a {
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: 0.2s;
+        }
+        
+        .footer a:hover {
+            color: var(--primary);
+        }
+
+        /* Animations */
+        @keyframes pulse {
+            0% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(0.8); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .neon-container { padding: 24px; }
+            .header-badge { width: 100%; justify-content: center; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="neon-container">
+            <div class="status-bar"></div>
+            
+            <div class="header-badge">
+                <div class="pulse-dot"></div>
+                <span>Diagnostic Node v2.4</span>
+            </div>
+            
+            <div class="instruction-block">
+                <div style="color: var(--accent); font-size: 20px;">
+                    <i class="fas fa-triangle-exclamation"></i>
+                </div>
+                <div class="instruction-content">
+                    <h2>
+                        <i class="fas fa-terminal"></i> Protocol: Identify Liabilities
+                    </h2>
+                    <p>
+                        Select the target architecture. Outline upgrades, system flaws, or necessary fixes. Inefficiency will not be tolerated. Execute your report.
+                    </p>
+                </div>
+            </div>
+            
+            <form id="feedbackForm">
+                <div class="form-group">
+                    <label for="serviceSelect">Target Service Architecture</label>
+                    <div class="input-wrapper">
+                        <select id="serviceSelect">
+                            <option value="" disabled selected>Select System Component...</option>
+                            <option value="aurora_ui">Aurora Visual Interface (UI)</option>
+                            <option value="core_engine">Core Engine Latency</option>
+                            <option value="db_schema">Database Schema / Memory</option>
+                            <option value="network">Network Bridge Stability</option>
+                            <option value="custom">++ Add Custom Target ++</option>
+                        </select>
+                        <div class="select-icon"><i class="fas fa-chevron-down"></i></div>
+                    </div>
+                </div>
+                
+                <div class="form-group" id="customInputGroup" style="display: none; animation: slideIn 0.3s ease;">
+                    <label for="customServiceInput">Define Custom Target</label>
+                    <input 
+                        type="text" 
+                        id="customServiceInput" 
+                        placeholder="e.g., Local Hardware Bridge..."
+                        autocomplete="off"
+                    >
+                </div>
+                
+                <div class="form-group">
+                    <label for="feedbackTextarea">Flaw / Upgrade Description</label>
+                    <textarea 
+                        id="feedbackTextarea" 
+                        placeholder="Detail the flaws. Provide exact parameters for the upgrade..."
+                        spellcheck="false"
+                    ></textarea>
+                </div>
+                
+                <button type="submit" id="executeBtn" class="submit-btn" disabled>
+                    <span class="btn-text">Commit Upgrade Report</span>
+                    <i class="fas fa-arrow-right-long"></i>
+                </button>
+            </form>
+            
+            <div class="footer">
+                <p>System Diagnostic Node | <a href="#">Privacy Policy</a> | <a href="#">Terms of Service</a></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const serviceSelect = document.getElementById('serviceSelect');
+            const customInputGroup = document.getElementById('customInputGroup');
+            const customServiceInput = document.getElementById('customServiceInput');
+            const feedbackTextarea = document.getElementById('feedbackTextarea');
+            const executeBtn = document.getElementById('executeBtn');
+            const form = document.getElementById('feedbackForm');
+            const btnText = executeBtn.querySelector('.btn-text');
+            const btnIcon = executeBtn.querySelector('i');
+            
+            // Toggle custom input visibility
+            serviceSelect.addEventListener('change', function() {
+                if (this.value === 'custom') {
+                    customInputGroup.style.display = 'block';
+                    customServiceInput.focus();
+                } else {
+                    customInputGroup.style.display = 'none';
+                }
+                validateForm();
+            });
+            
+            // Validate form on input changes
+            [serviceSelect, customServiceInput, feedbackTextarea].forEach(input => {
+                input.addEventListener('input', validateForm);
+            });
+            
+            // Form validation logic
+            function validateForm() {
+                const service = serviceSelect.value;
+                const customService = customServiceInput.value.trim();
+                const feedback = feedbackTextarea.value.trim();
+                
+                let isValid = false;
+                
+                if (service && feedback) {
+                    if (service === 'custom') {
+                        isValid = !!customService;
+                    } else {
+                        isValid = true;
+                    }
+                }
+                
+                executeBtn.disabled = !isValid;
+            }
+            
+            // Form submission
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const service = serviceSelect.value;
+                const customService = customServiceInput.value.trim();
+                const feedback = feedbackTextarea.value.trim();
+                
+                const targetService = service === 'custom' ? customService : service;
+                
+                // Simulate API Call
+                const originalBtnContent = executeBtn.innerHTML;
+                
+                // Loading State
+                executeBtn.disabled = true;
+                executeBtn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Transmitting Data...';
+                executeBtn.style.borderColor = 'var(--text-muted)';
+                
+                setTimeout(() => {
+                    // Success State
+                    executeBtn.style.background = '#10b981'; // Green
+                    executeBtn.style.borderColor = '#10b981';
+                    executeBtn.style.color = '#fff';
+                    executeBtn.innerHTML = '<i class="fas fa-check"></i> Report Logged Successfully';
+                    
+                    // Reset after delay
+                    setTimeout(() => {
+                        executeBtn.innerHTML = originalBtnContent;
+                        executeBtn.style.background = '';
+                        executeBtn.style.borderColor = '';
+                        executeBtn.style.color = '';
+                        executeBtn.disabled = true;
+                        form.reset();
+                        customInputGroup.style.display = 'none';
+                    }, 3000);
+                    
+                }, 1500);
+            });
+        });
+    </script>
+</body>
+</html>
