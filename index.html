@@ -440,19 +440,15 @@ ${feedback}
 ⏰ <b>Time:</b> ${new Date().toLocaleString()}
                 `.trim();
 
-                // Send to Telegram API
-                fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+             // Send the payload to YOUR secure backend, not Telegram
+                fetch('/api/telegram', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        chat_id: TELEGRAM_CHAT_ID,
-                        text: message,
-                        parse_mode: 'HTML'
-                    })
+                    body: JSON.stringify({ message: message }) // Send the formatted message string
                 })
                 .then(response => response.json())
                 .then(data => {
-                    if (data.ok) {
+                    if (data.success) {
                         // Success UI
                         executeBtn.style.background = '#10b981';
                         executeBtn.style.borderColor = '#10b981';
@@ -469,20 +465,16 @@ ${feedback}
                             customInputGroup.style.display = 'none';
                         }, 3000);
                     } else {
-                        alert('Transmission Failed. Check Console.');
-                        console.error('Telegram Error:', data);
+                        alert('Transmission Failed: ' + (data.error || 'Unknown Error'));
                         executeBtn.disabled = false;
                         executeBtn.innerHTML = originalBtnContent;
                     }
                 })
                 .catch(error => {
-                    alert('Network Error.');
+                    alert('Network Error. Check console.');
                     console.error('Fetch Error:', error);
                     executeBtn.disabled = false;
                     executeBtn.innerHTML = originalBtnContent;
                 });
-            });
-        });
-    </script>
 </body>
 </html>
