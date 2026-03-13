@@ -274,56 +274,53 @@
                 </div>
             </div>
             
-            <!-- Web3Forms Integration -->
-           <form action="thank.html" method="POST">
-                <!-- Web3Forms Access Key -->
-                <input type="hidden" name="access_key" value="cad2cc4f-bbbf-4286-86fd-9b4ff6651c0d">
-                
-                <!-- Honeypot (Spam Protection) -->
-                <input type="checkbox" name="botcheck" class="hidden" style="display: none;">
+            <form action="https://api.web3forms.com/submit" method="POST" id="upgradeForm">
+    <input type="hidden" name="access_key" value="cad2cc4f-bbbf-4286-86fd-9b4ff6651c0d">
+    
+    <input type="hidden" name="redirect" value="https://yourdomain.com/thank.html">
+    
+    <input type="checkbox" name="botcheck" class="hidden" style="display: none;">
 
-                <div class="form-group">
-                    <label for="serviceSelect">Target Service Architecture</label>
-                    <div class="input-wrapper">
-                        <select id="serviceSelect" name="Target_Service">
-                            <option value="" disabled selected>Select System Component...</option>
-                            <option value="Core Engine Latency">Core Engine Latency</option>
-                            <option value="Database Schema / Memory">Database Schema / Memory</option>
-                            <option value="Network Bridge Stability">Network Bridge Stability</option>
-                            <option value="Custom Target"> Add Custom Target</option>
-                        </select>
-                        <div class="select-icon"><i class="fas fa-chevron-down"></i></div>
-                    </div>
-                </div>
-                
-                <div class="form-group" id="customInputGroup" style="display: none;">
-                    <label for="customServiceInput">Define Custom Target</label>
-                    <input 
-                        type="text" 
-                        id="customServiceInput" 
-                        name="Custom_Target_Name"
-                        placeholder="e.g., Local Hardware Bridge..."
-                        autocomplete="off"
-                    >
-                </div>
-                
-                <div class="form-group">
-                    <label for="feedbackTextarea">Flaw / Upgrade Description</label>
-                    <textarea 
-                        id="feedbackTextarea" 
-                        name="Flaw_Description"
-                        placeholder="Detail the flaws. Provide exact parameters for the upgrade..."
-                        spellcheck="false"
-                        required
-                    ></textarea>
-                </div>
-                
-                <button type="submit" id="executeBtn" class="submit-btn" disabled>
-                    <span class="btn-text" href="thank.html">Commit Upgrade Report</span>
-                    <i class="fas fa-arrow-right-long"></i>
-                </button>
-            </form>
-            
+    <div class="form-group">
+        <label for="serviceSelect">Target Service Architecture</label>
+        <div class="input-wrapper">
+            <select id="serviceSelect" name="Target_Service" required>
+                <option value="" disabled selected>Select System Component...</option>
+                <option value="Core Engine Latency">Core Engine Latency</option>
+                <option value="Database Schema / Memory">Database Schema / Memory</option>
+                <option value="Network Bridge Stability">Network Bridge Stability</option>
+                <option value="Custom Target">Add Custom Target</option>
+            </select>
+        </div>
+    </div>
+    
+    <div class="form-group" id="customInputGroup" style="display: none;">
+        <label for="customServiceInput">Define Custom Target</label>
+        <input 
+            type="text" 
+            id="customServiceInput" 
+            name="Custom_Target_Name"
+            placeholder="e.g., Local Hardware Bridge..."
+            autocomplete="off"
+        >
+    </div>
+    
+    <div class="form-group">
+        <label for="feedbackTextarea">Flaw / Upgrade Description</label>
+        <textarea 
+            id="feedbackTextarea" 
+            name="Flaw_Description"
+            placeholder="Detail the flaws. Provide exact parameters for the upgrade..."
+            spellcheck="false"
+            required
+        ></textarea>
+    </div>
+    
+    <button type="submit" id="executeBtn" class="submit-btn">
+        <span class="btn-text">Commit Upgrade Report</span>
+        <i class="fas fa-arrow-right-long"></i>
+    </button>
+</form>
             <div class="footer">
                 <p>System Diagnostic Node | Secured by Web3Forms</p>
             </div>
@@ -432,6 +429,34 @@
                 });
             });
         });
+         const serviceSelect = document.getElementById('serviceSelect');
+    const customInputGroup = document.getElementById('customInputGroup');
+    const customServiceInput = document.getElementById('customServiceInput');
+    const feedbackTextarea = document.getElementById('feedbackTextarea');
+    const executeBtn = document.getElementById('executeBtn');
+
+    // 1. Logic to show/hide the Custom Target field
+    serviceSelect.addEventListener('change', function() {
+        if (this.value === 'Custom Target') {
+            customInputGroup.style.display = 'block';
+            customServiceInput.setAttribute('required', 'required');
+        } else {
+            customInputGroup.style.display = 'none';
+            customServiceInput.removeAttribute('required');
+        }
+    });
+
+    // 2. Simple Validation to enable/disable button based on textarea
+    feedbackTextarea.addEventListener('input', function() {
+        if (this.value.trim().length > 5) {
+            executeBtn.disabled = false;
+        } else {
+            executeBtn.disabled = true;
+        }
+    });
+    
+    // Initialize button state
+    executeBtn.disabled = true;
     </script>
 </body>
 </html>
