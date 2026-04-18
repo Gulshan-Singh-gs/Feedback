@@ -330,31 +330,30 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const form = document.getElementById('feedbackForm');
+            const form = document.getElementById('upgradeForm');
             const serviceSelect = document.getElementById('serviceSelect');
             const customInputGroup = document.getElementById('customInputGroup');
             const customServiceInput = document.getElementById('customServiceInput');
             const feedbackTextarea = document.getElementById('feedbackTextarea');
             const executeBtn = document.getElementById('executeBtn');
             
-            // Toggle custom input visibility
-            serviceSelect.addEventListener('change', function() {
-                if (this.value === 'Custom Target') {
-                    customInputGroup.style.display = 'block';
-                    customServiceInput.focus();
-                    customServiceInput.setAttribute('required', 'true');
-                } else {
-                    customInputGroup.style.display = 'none';
-                    customServiceInput.removeAttribute('required');
-                    customServiceInput.value = ''; // Clear value if hidden
+            // Event delegation to reduce active event listeners and memory
+            form.addEventListener('change', function(e) {
+                if (e.target === serviceSelect) {
+                    if (serviceSelect.value === 'Custom Target') {
+                        customInputGroup.style.display = 'block';
+                        customServiceInput.focus();
+                        customServiceInput.setAttribute('required', 'true');
+                    } else {
+                        customInputGroup.style.display = 'none';
+                        customServiceInput.removeAttribute('required');
+                        customServiceInput.value = ''; // Clear value if hidden
+                    }
+                    validateForm();
                 }
-                validateForm();
             });
             
-            // Validate form on input changes
-            [serviceSelect, customServiceInput, feedbackTextarea].forEach(input => {
-                input.addEventListener('input', validateForm);
-            });
+            form.addEventListener('input', validateForm);
             
             function validateForm() {
                 const service = serviceSelect.value;
@@ -430,34 +429,7 @@
                 });
             });
         });
-         const serviceSelect = document.getElementById('serviceSelect');
-    const customInputGroup = document.getElementById('customInputGroup');
-    const customServiceInput = document.getElementById('customServiceInput');
-    const feedbackTextarea = document.getElementById('feedbackTextarea');
-    const executeBtn = document.getElementById('executeBtn');
 
-    // 1. Logic to show/hide the Custom Target field
-    serviceSelect.addEventListener('change', function() {
-        if (this.value === 'Custom Target') {
-            customInputGroup.style.display = 'block';
-            customServiceInput.setAttribute('required', 'required');
-        } else {
-            customInputGroup.style.display = 'none';
-            customServiceInput.removeAttribute('required');
-        }
-    });
-
-    // 2. Simple Validation to enable/disable button based on textarea
-    feedbackTextarea.addEventListener('input', function() {
-        if (this.value.trim().length > 5) {
-            executeBtn.disabled = false;
-        } else {
-            executeBtn.disabled = true;
-        }
-    });
-    
-    // Initialize button state
-    executeBtn.disabled = true;
     </script>
 </body>
 </html>
