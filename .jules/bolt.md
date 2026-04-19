@@ -1,0 +1,3 @@
+## 2026-04-19 - Duplicate Event Listeners and ID Mismatch
+**Learning:** Found duplicate logic and redundant event listeners being attached outside the `DOMContentLoaded` block in `index.html`. This extra logic was unnecessary because similar, more robust validations and UI state updates were already correctly implemented inside `DOMContentLoaded`. Furthermore, the form listener was trying to query for `feedbackForm` when the actual form ID was `upgradeForm`, breaking the entire application.
+**Action:** Removed the duplicate logic block at the end of the script tag and fixed the form ID selector. By removing duplicate logic, we ensure a clean separation of concern inside `DOMContentLoaded`, preventing double events, unexpected memory growth, and application bugs.
