@@ -330,7 +330,10 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const form = document.getElementById('feedbackForm');
+            // ⚡ Bolt Performance Improvement:
+            // Fixed form ID reference to match the actual DOM element ('upgradeForm')
+            // This allows the single DOMContentLoaded listener to handle all form logic efficiently.
+            const form = document.getElementById('upgradeForm');
             const serviceSelect = document.getElementById('serviceSelect');
             const customInputGroup = document.getElementById('customInputGroup');
             const customServiceInput = document.getElementById('customServiceInput');
@@ -375,8 +378,9 @@
             }
             
             // Handle Form Submission via AJAX
-            form.addEventListener('submit', function(e) {
-                e.preventDefault();
+            if (form) {
+                form.addEventListener('submit', function(e) {
+                    e.preventDefault();
                 
                 const originalBtnContent = executeBtn.innerHTML;
                 
@@ -428,36 +432,13 @@
                     executeBtn.disabled = false;
                     executeBtn.innerHTML = originalBtnContent;
                 });
-            });
+                });
+            }
         });
-         const serviceSelect = document.getElementById('serviceSelect');
-    const customInputGroup = document.getElementById('customInputGroup');
-    const customServiceInput = document.getElementById('customServiceInput');
-    const feedbackTextarea = document.getElementById('feedbackTextarea');
-    const executeBtn = document.getElementById('executeBtn');
 
-    // 1. Logic to show/hide the Custom Target field
-    serviceSelect.addEventListener('change', function() {
-        if (this.value === 'Custom Target') {
-            customInputGroup.style.display = 'block';
-            customServiceInput.setAttribute('required', 'required');
-        } else {
-            customInputGroup.style.display = 'none';
-            customServiceInput.removeAttribute('required');
-        }
-    });
-
-    // 2. Simple Validation to enable/disable button based on textarea
-    feedbackTextarea.addEventListener('input', function() {
-        if (this.value.trim().length > 5) {
-            executeBtn.disabled = false;
-        } else {
-            executeBtn.disabled = true;
-        }
-    });
-    
-    // Initialize button state
-    executeBtn.disabled = true;
+        // ⚡ Bolt Performance Improvement:
+        // Removed duplicated redundant global event listeners for serviceSelect and feedbackTextarea.
+        // This reduces memory usage and prevents multiple redundant trigger calls (fewer active event listeners).
     </script>
 </body>
 </html>
