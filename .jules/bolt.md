@@ -1,0 +1,3 @@
+## 2024-05-15 - Redundant DOM Bindings and Mismatched IDs
+**Learning:** Found redundant event bindings placed outside of `DOMContentLoaded` mapping the same DOM elements again and creating conflicting input listeners. This causes duplicate listeners and increased memory usage with no benefit. Also found a mismatched `id` lookup for the form submission causing a `TypeError`.
+**Action:** Removed redundant script block at the end of the `index.html` file, moved validation logic consistently into the `DOMContentLoaded` block to prevent duplicate bindings, and fixed the mismatched form ID, optimizing startup memory footprint and fixing a hidden form submission bug.
