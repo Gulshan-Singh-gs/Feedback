@@ -1,0 +1,3 @@
+## 2024-03-24 - Duplicate DOM Bindings and Unbound Event Handlers
+**Learning:** Found duplicate script tags un-encapsulated outside `DOMContentLoaded` executing redundant logic and re-binding variables with identical DOM queries (`document.getElementById`). The form was also mis-referenced (`feedbackForm` vs `upgradeForm`), leading to a silent failure on form submission attachment. This caused unnecessary JS execution on load and during input interactions, slightly inflating JS heap.
+**Action:** Removed duplicate scripts, encapsulated all logic within `DOMContentLoaded`, consolidated validation initialization, and fixed ID references to drop `JSEventListeners` from 7 down to 6 and reduce JS layout recalculation thrashing during load.
