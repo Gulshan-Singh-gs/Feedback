@@ -329,8 +329,12 @@
     </div>
 
     <script>
+        // ⚡ Bolt Optimization:
+        // - Removed duplicate DOM bindings and redundant event listeners outside DOMContentLoaded
+        // - Fixed form ID selector to match HTML (upgradeForm instead of feedbackForm)
+        // - This prevents JS errors on submission and eliminates duplicate execution paths, reducing JS heap usage and execution time.
         document.addEventListener('DOMContentLoaded', function() {
-            const form = document.getElementById('feedbackForm');
+            const form = document.getElementById('upgradeForm');
             const serviceSelect = document.getElementById('serviceSelect');
             const customInputGroup = document.getElementById('customInputGroup');
             const customServiceInput = document.getElementById('customServiceInput');
@@ -374,90 +378,67 @@
                 executeBtn.disabled = !isValid;
             }
             
+            // Initialize button state
+            validateForm();
+
             // Handle Form Submission via AJAX
-            form.addEventListener('submit', function(e) {
-                e.preventDefault();
-                
-                const originalBtnContent = executeBtn.innerHTML;
-                
-                // UI Loading State
-                executeBtn.disabled = true;
-                executeBtn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Transmitting Data...';
-                executeBtn.style.borderColor = 'var(--text-muted)';
-                
-                const formData = new FormData(form);
-                const object = Object.fromEntries(formData);
-                const json = JSON.stringify(object);
-                
-                fetch('https://api.web3forms.com/submit', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json'
-                    },
-                    body: json
-                })
-                .then(async (response) => {
-                    if (response.status === 200) {
-                        // Success State
-                        executeBtn.style.background = '#10b981'; // Green
-                        executeBtn.style.borderColor = '#10b981';
-                        executeBtn.style.color = '#fff';
-                        executeBtn.innerHTML = '<i class="fas fa-check"></i> Report Logged Successfully';
-                        
-                        // Reset form after delay
-                        setTimeout(() => {
+            if (form) {
+                form.addEventListener('submit', function(e) {
+                    e.preventDefault();
+
+                    const originalBtnContent = executeBtn.innerHTML;
+
+                    // UI Loading State
+                    executeBtn.disabled = true;
+                    executeBtn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Transmitting Data...';
+                    executeBtn.style.borderColor = 'var(--text-muted)';
+
+                    const formData = new FormData(form);
+                    const object = Object.fromEntries(formData);
+                    const json = JSON.stringify(object);
+
+                    fetch('https://api.web3forms.com/submit', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json'
+                        },
+                        body: json
+                    })
+                    .then(async (response) => {
+                        if (response.status === 200) {
+                            // Success State
+                            executeBtn.style.background = '#10b981'; // Green
+                            executeBtn.style.borderColor = '#10b981';
+                            executeBtn.style.color = '#fff';
+                            executeBtn.innerHTML = '<i class="fas fa-check"></i> Report Logged Successfully';
+
+                            // Reset form after delay
+                            setTimeout(() => {
+                                executeBtn.innerHTML = originalBtnContent;
+                                executeBtn.style.background = '';
+                                executeBtn.style.borderColor = '';
+                                executeBtn.style.color = '';
+                                executeBtn.disabled = true;
+                                form.reset();
+                                customInputGroup.style.display = 'none';
+                            }, 3000);
+                        } else {
+                            console.log(response);
+                            alert("Transmission Failed. Please try again.");
+                            executeBtn.disabled = false;
                             executeBtn.innerHTML = originalBtnContent;
-                            executeBtn.style.background = '';
-                            executeBtn.style.borderColor = '';
-                            executeBtn.style.color = '';
-                            executeBtn.disabled = true;
-                            form.reset();
-                            customInputGroup.style.display = 'none';
-                        }, 3000);
-                    } else {
-                        console.log(response);
-                        alert("Transmission Failed. Please try again.");
+                        }
+                    })
+                    .catch(error => {
+                        console.log(error);
+                        alert("Network Error. Check connection.");
                         executeBtn.disabled = false;
                         executeBtn.innerHTML = originalBtnContent;
-                    }
-                })
-                .catch(error => {
-                    console.log(error);
-                    alert("Network Error. Check connection.");
-                    executeBtn.disabled = false;
-                    executeBtn.innerHTML = originalBtnContent;
+                    });
                 });
-            });
+            }
         });
-         const serviceSelect = document.getElementById('serviceSelect');
-    const customInputGroup = document.getElementById('customInputGroup');
-    const customServiceInput = document.getElementById('customServiceInput');
-    const feedbackTextarea = document.getElementById('feedbackTextarea');
-    const executeBtn = document.getElementById('executeBtn');
-
-    // 1. Logic to show/hide the Custom Target field
-    serviceSelect.addEventListener('change', function() {
-        if (this.value === 'Custom Target') {
-            customInputGroup.style.display = 'block';
-            customServiceInput.setAttribute('required', 'required');
-        } else {
-            customInputGroup.style.display = 'none';
-            customServiceInput.removeAttribute('required');
-        }
-    });
-
-    // 2. Simple Validation to enable/disable button based on textarea
-    feedbackTextarea.addEventListener('input', function() {
-        if (this.value.trim().length > 5) {
-            executeBtn.disabled = false;
-        } else {
-            executeBtn.disabled = true;
-        }
-    });
-    
-    // Initialize button state
-    executeBtn.disabled = true;
     </script>
 </body>
 </html>
