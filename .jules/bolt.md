@@ -1,0 +1,3 @@
+## 2026-04-29 - [Duplicate DOM Initialization Anti-Pattern]
+**Learning:** This codebase contains redundant `<script>` tag logic outside of `DOMContentLoaded` that unnecessarily duplicates DOM queries and event listener attachments for forms and inputs. The primary `DOMContentLoaded` block also fails silently if a single ID like `feedbackForm` does not exist instead of `upgradeForm`. This pattern leads to double the number of event listeners per interactable element.
+**Action:** Always verify form setup by counting event listeners per DOM element via CDP debugger before deciding on simple memoization; you may find duplicate logic hiding in separate unorganized script blocks.
