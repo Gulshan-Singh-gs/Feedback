@@ -1,0 +1,3 @@
+## 2024-11-20 - Redundant Logic & Duplicate Bindings
+**Learning:** Found duplicate DOM elements bindings, event listeners logic and incorrect form element id in the global scope inside index.html. In the global scope outside `DOMContentLoaded`, redundant variables are set up and event listeners attached again causing memory overhead and duplicates of the events on the main thread execution.
+**Action:** Always ensure DOM logic is properly initialized inside the DOMContentLoaded block and clean up any redundant DOM bindings and logic placed at the root of the `<script>` tag. Check that the elements ID used to initialize elements correctly exists in the HTML tree.
