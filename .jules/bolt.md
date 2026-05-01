@@ -1,0 +1,3 @@
+## 2024-05-18 - Silent AJAX Fallback and Redundant DOM Bindings
+**Learning:** An incorrect form ID in the JavaScript initialization meant the `document.getElementById` returned null. As a result, the optimized AJAX submission code was silently skipped, and the browser fell back to the default synchronous HTML form submission. Additionally, duplicate DOM bindings and event listeners placed outside the `DOMContentLoaded` block cause unnecessary overhead and redundant processing logic.
+**Action:** Always verify form IDs correspond to actual DOM elements to ensure optimized paths aren't silently skipped. Keep all DOM querying and event listener attachment inside `DOMContentLoaded` to prevent redundancy and double-binding overhead.
