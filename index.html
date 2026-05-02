@@ -330,7 +330,8 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const form = document.getElementById('feedbackForm');
+            // BOLT OPTIMIZATION: Fixed form ID reference to match the DOM so the AJAX submit handler attaches correctly.
+            const form = document.getElementById('upgradeForm');
             const serviceSelect = document.getElementById('serviceSelect');
             const customInputGroup = document.getElementById('customInputGroup');
             const customServiceInput = document.getElementById('customServiceInput');
@@ -430,34 +431,8 @@
                 });
             });
         });
-         const serviceSelect = document.getElementById('serviceSelect');
-    const customInputGroup = document.getElementById('customInputGroup');
-    const customServiceInput = document.getElementById('customServiceInput');
-    const feedbackTextarea = document.getElementById('feedbackTextarea');
-    const executeBtn = document.getElementById('executeBtn');
-
-    // 1. Logic to show/hide the Custom Target field
-    serviceSelect.addEventListener('change', function() {
-        if (this.value === 'Custom Target') {
-            customInputGroup.style.display = 'block';
-            customServiceInput.setAttribute('required', 'required');
-        } else {
-            customInputGroup.style.display = 'none';
-            customServiceInput.removeAttribute('required');
-        }
-    });
-
-    // 2. Simple Validation to enable/disable button based on textarea
-    feedbackTextarea.addEventListener('input', function() {
-        if (this.value.trim().length > 5) {
-            executeBtn.disabled = false;
-        } else {
-            executeBtn.disabled = true;
-        }
-    });
-    
-    // Initialize button state
-    executeBtn.disabled = true;
+        // BOLT OPTIMIZATION: Removed redundant global DOM queries and event bindings from the bottom of the script.
+        // This eliminates duplicate event handler memory overhead and prevents conflicting logic.
     </script>
 </body>
 </html>

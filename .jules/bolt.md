@@ -1,0 +1,3 @@
+## 2024-05-02 - Redundant Global DOM Queries and Event Bindings
+**Learning:** This codebase contained a surprising edge case where vanilla JS event listeners and DOM queries were duplicated globally outside of the standard `DOMContentLoaded` initialization block. This architectural quirk caused duplicate event firing, redundant memory usage, and logic conflicts (such as overlapping validation checks).
+**Action:** Always scan vanilla HTML/JS files completely to the end of the `<script>` tags. Do not assume all logic is contained within the initial `DOMContentLoaded` wrapper. Centralize DOM queries and event bindings to avoid redundant event handling and memory bloat.
