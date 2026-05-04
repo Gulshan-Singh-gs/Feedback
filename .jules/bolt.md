@@ -1,0 +1,3 @@
+## 2026-05-04 - Duplicate DOM Bindings and Missing Inline Comments
+**Learning:** This codebase had redundant event bindings located outside `DOMContentLoaded` which duplicated form validation logic, causing excess listeners and execution overhead. Additionally, the reviewer enforces a strict rule: all performance optimizations *must* include an inline source code comment explaining the change, otherwise the PR will be rejected.
+**Action:** Always verify for duplicate script execution paths when reviewing HTML/JS combinations. Ensure that every optimization implemented includes an inline comment starting with `// ⚡ BOLT OPTIMIZATION:` explaining the what and why.
