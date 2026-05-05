@@ -317,7 +317,7 @@
         ></textarea>
     </div>
     
-    <button type="submit" id="executeBtn" class="submit-btn">
+    <button type="submit" id="executeBtn" class="submit-btn" disabled>
         <span class="btn-text">Commit Upgrade Report</span>
         <i class="fas fa-arrow-right-long"></i>
     </button>
@@ -330,7 +330,8 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const form = document.getElementById('feedbackForm');
+            // ⚡ BOLT OPTIMIZATION: Removed redundant DOM queries and conflicting event listeners outside DOMContentLoaded. This prevents double-binding events, reduces memory usage, and fixes the form submission.
+            const form = document.getElementById('upgradeForm');
             const serviceSelect = document.getElementById('serviceSelect');
             const customInputGroup = document.getElementById('customInputGroup');
             const customServiceInput = document.getElementById('customServiceInput');
@@ -430,34 +431,6 @@
                 });
             });
         });
-         const serviceSelect = document.getElementById('serviceSelect');
-    const customInputGroup = document.getElementById('customInputGroup');
-    const customServiceInput = document.getElementById('customServiceInput');
-    const feedbackTextarea = document.getElementById('feedbackTextarea');
-    const executeBtn = document.getElementById('executeBtn');
-
-    // 1. Logic to show/hide the Custom Target field
-    serviceSelect.addEventListener('change', function() {
-        if (this.value === 'Custom Target') {
-            customInputGroup.style.display = 'block';
-            customServiceInput.setAttribute('required', 'required');
-        } else {
-            customInputGroup.style.display = 'none';
-            customServiceInput.removeAttribute('required');
-        }
-    });
-
-    // 2. Simple Validation to enable/disable button based on textarea
-    feedbackTextarea.addEventListener('input', function() {
-        if (this.value.trim().length > 5) {
-            executeBtn.disabled = false;
-        } else {
-            executeBtn.disabled = true;
-        }
-    });
-    
-    // Initialize button state
-    executeBtn.disabled = true;
     </script>
 </body>
 </html>
