@@ -1,0 +1,3 @@
+## 2024-05-06 - Unoptimized Favicon Payload
+**Learning:** Found an edge case where standard static assets like favicons are committed in their raw, high-resolution source format (e.g., 509x511 pixels and 329KB for `fevicon.png`). Because the favicon is requested synchronously on the initial HTML page load by the browser (`<link rel="icon"...>`), this blocks rendering/adds unnecessary network transfer overhead for a tiny 32x32 UI element.
+**Action:** Always check the file size and dimensions of images linked in the `<head>` tag of static HTML files in this project, as they provide a zero-risk opportunity for massive relative payload reduction.
