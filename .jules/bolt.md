@@ -1,0 +1,3 @@
+## 2024-05-19 - Unoptimized Static Assets
+**Learning:** Large unoptimized static assets (like a 509x511 favicon weighing 329KB) act as significant network bottlenecks for frontend load times, even when other code is performant.
+**Action:** Always verify image dimensions and file sizes (e.g., using `ls -la` and Python's `Pillow` library) for static assets, particularly favicons which should standardly be 64x64 or smaller. Resize and compress them to reduce network payloads before considering complex code-level optimizations.
