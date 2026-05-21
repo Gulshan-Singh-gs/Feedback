@@ -1,0 +1,3 @@
+## 2024-05-21 - Unoptimized Static Assets
+**Learning:** Found a significantly unoptimized favicon (`fevicon.png`) that was 322KB and 509x511. Large static assets block the critical rendering path or waste bandwidth, especially for something as small as a favicon.
+**Action:** Always check raw asset sizes (images, favicons) in frontend projects. Compress them using Pillow or similar tools, and ensure appropriate dimensions are used to eliminate wasted network payload.
