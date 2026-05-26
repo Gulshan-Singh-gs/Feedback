@@ -1,0 +1,3 @@
+## 2024-05-26 - [Unoptimized Assets]
+**Learning:** The application is loading a large favicon (~330KB) that is 509x511 pixels instead of an optimized size. Unoptimized assets significantly delay time-to-interactive and waste bandwidth.
+**Action:** Always check basic asset sizes (images, favicons, fonts) early in the optimization process before diving into complex rendering logic. Use Python Pillow to compress these static assets.
