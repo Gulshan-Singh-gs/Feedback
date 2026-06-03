@@ -1,0 +1,3 @@
+## 2024-06-03 - Unoptimized Static Assets Due to Missing Build Pipeline
+**Learning:** This codebase lacks an automated build pipeline for static assets, meaning unoptimized, large source images (like 500x500 PNGs used for favicons) are checked directly into the repository and served to users.
+**Action:** When working in repositories without asset pipelines, manually check static image sizes and use tools like Pillow to resize/compress them before merging, preventing unnecessary network payloads.
