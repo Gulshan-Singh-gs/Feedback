@@ -1,0 +1,3 @@
+## 2024-06-07 - Large, Unoptimized Static Assets (Favicons) Silently Bloating Network Payloads
+**Learning:** Even seemingly minor assets like a favicon (`fevicon.png`) can silently bloat network payloads and impact initial page load times if left unoptimized (e.g., this one was over 320KB!). This codebase relies on raw files being served without an automated Node-based build pipeline to compress assets.
+**Action:** When auditing frontend performance in setups lacking automated asset pipelines, proactively check the file sizes of all static assets (`ls -la`), especially those loaded in `<head>` (like icons), and manually optimize them using tools like Python Pillow before deployment.
