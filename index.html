@@ -1,463 +1,481 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Diagnostic Node | Feedback Protocol</title>
+    
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <!-- Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="icon" type="image/png" href="fevicon.png">
+
     <style>
+        /* --- NEUMORPHIC VARIABLES --- */
         :root {
-            --bg-deep: #050b14;
-            --bg-surface: rgba(13, 20, 35, 0.75);
-            --bg-input: rgba(13, 20, 35, 0.5);
-            --primary: #22d3ee;
-            --primary-dim: rgba(34, 211, 238, 0.1);
-            --primary-glow: rgba(34, 211, 238, 0.4);
-            --accent: #f87171;
-            --accent-dim: rgba(248, 113, 113, 0.1);
-            --text-main: #e2e8f0;
-            --text-muted: #94a3b8;
-            --border-color: rgba(34, 211, 238, 0.2);
-            --radius: 12px;
-            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            /* Light Mode (Default) */
+            --bg-color: #e0e5ec;
+            --text-main: #4a5568;
+            --text-muted: #718096;
+            --accent: #667eea; /* Soft Blue/Purple */
+            --shadow-light: #ffffff;
+            --shadow-dark: #a3b1c6;
+            --input-bg: #e0e5ec;
+            --border-radius: 20px;
+            --transition: all 0.3s ease;
+        }
+
+        [data-theme="dark"] {
+            /* Dark Mode */
+            --bg-color: #000000; /* Deep dark blue-grey */
+            --text-main: #c0caf5;
+            --text-muted: #7aa2f7;
+            --accent: #bb9af7; /* Neon Purple */
+            --shadow-light: #292e42; /* Lighter than bg */
+            --shadow-dark: #13141c; /* Darker than bg */
+            --input-bg: #1a1b26;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
 
         body {
-            background-color: var(--bg-deep);
+            background-color: var(--bg-color);
+            color: var(--text-main);
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 24px;
-            color: var(--text-main);
-            overflow-x: hidden;
-            position: relative;
-        }
-
-        /* Grid Background */
-        body::before {
-            content: "";
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background-image: 
-                linear-gradient(rgba(34, 211, 238, 0.03) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(34, 211, 238, 0.03) 1px, transparent 1px);
-            background-size: 40px 40px;
-            z-index: -1;
-            mask-image: radial-gradient(circle at center, black 40%, transparent 100%);
-        }
-
-        .container {
-            width: 100%;
-            max-width: 680px;
-            perspective: 1000px;
-        }
-
-        .neon-container {
-            position: relative;
-            width: 100%;
-            background: var(--bg-surface);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius);
-            padding: 48px;
-            box-shadow: 
-                0 20px 40px -10px rgba(0,0,0,0.5),
-                0 0 0 1px rgba(255,255,255,0.05) inset;
-            overflow: hidden;
-            animation: slideIn 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-
-        .status-bar {
-            position: absolute;
-            top: 0; left: 0; right: 0;
-            height: 4px;
-            background: linear-gradient(90deg, var(--primary), transparent 40%);
-        }
-
-        .header-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            background: var(--bg-input);
-            padding: 6px 12px;
-            border: 1px solid var(--border-color);
-            border-radius: 100px;
-            margin-bottom: 24px;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 11px;
-            color: var(--primary);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .pulse-dot {
-            width: 6px; height: 6px;
-            background: var(--primary);
-            border-radius: 50%;
-            box-shadow: 0 0 8px var(--primary);
-            animation: pulse 2s infinite;
-        }
-
-        .instruction-block {
-            background: var(--accent-dim);
-            border-left: 3px solid var(--accent);
-            padding: 16px 20px;
-            border-radius: 0 8px 8px 0;
-            margin-bottom: 32px;
-            display: flex;
-            align-items: flex-start;
-            gap: 16px;
+            padding: 20px;
             transition: var(--transition);
         }
 
-        .instruction-block:hover { transform: translateX(4px); background: rgba(248, 113, 113, 0.15); }
+        /* --- LAYOUT --- */
+        .container {
+            width: 100%;
+            max-width: 600px;
+            position: relative;
+        }
 
-        .instruction-content h2 {
+        .neumorphic-card {
+            background: var(--bg-color);
+            border-radius: 30px;
+            padding: 40px;
+            /* The Neumorphic Shadow Magic */
+            box-shadow: 
+                9px 9px 16px var(--shadow-dark), 
+                -9px -9px 16px var(--shadow-light);
+            transition: var(--transition);
+        }
+
+        /* --- HEADER & TOGGLE --- */
+        .header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        h1 {
             font-family: 'JetBrains Mono', monospace;
-            font-size: 12px;
-            color: var(--accent);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 6px;
+            font-size: 22px;
+            letter-spacing: -0.5px;
+        }
+
+        /* Theme Toggle Switch */
+        .theme-switch-wrapper {
             display: flex;
             align-items: center;
-            gap: 8px;
+        }
+        
+        .theme-switch {
+            display: inline-block;
+            height: 34px;
+            position: relative;
+            width: 60px;
         }
 
-        .instruction-content p {
-            font-size: 14px;
-            color: var(--text-muted);
-            line-height: 1.5;
+        .theme-switch input { display:none; }
+
+        .slider {
+            background-color: var(--bg-color);
+            bottom: 0;
+            cursor: pointer;
+            left: 0;
+            position: absolute;
+            right: 0;
+            top: 0;
+            transition: .4s;
+            border-radius: 34px;
+            box-shadow: 
+                inset 2px 2px 5px var(--shadow-dark), 
+                inset -2px -2px 5px var(--shadow-light);
         }
 
-        .form-group { margin-bottom: 24px; position: relative; }
+        .slider:before {
+            background-color: var(--accent);
+            bottom: 4px;
+            content: "";
+            height: 26px;
+            left: 4px;
+            position: absolute;
+            transition: .4s;
+            width: 26px;
+            border-radius: 50%;
+            box-shadow: 2px 2px 5px var(--shadow-dark);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+
+        /* --- FORM ELEMENTS --- */
+        .form-group { margin-bottom: 25px; }
 
         label {
             display: block;
-            color: var(--text-muted);
             font-size: 12px;
-            font-weight: 500;
-            margin-bottom: 8px;
-            text-transform: uppercase;
-            letter-spacing: 0.8px;
-        }
-
-        .input-wrapper { position: relative; }
-
-        select, input, textarea {
-            width: 100%;
-            background: var(--bg-input);
-            border: 1px solid rgba(255,255,255,0.1);
-            color: var(--text-main);
-            padding: 14px 16px;
-            font-size: 14px;
-            border-radius: 8px;
-            transition: var(--transition);
-            font-family: 'Inter', sans-serif;
-        }
-
-        select { appearance: none; cursor: pointer; }
-        
-        .select-icon {
-            position: absolute;
-            right: 16px; top: 50%;
-            transform: translateY(-50%);
-            color: var(--text-muted);
-            pointer-events: none;
-            font-size: 12px;
-        }
-
-        textarea { resize: vertical; min-height: 140px; line-height: 1.6; }
-
-        select:focus, input:focus, textarea:focus {
-            outline: none;
-            border-color: var(--primary);
-            background: rgba(13, 20, 35, 0.8);
-            box-shadow: 0 0 0 4px var(--primary-dim);
-        }
-
-        .submit-btn {
-            width: 100%;
-            background: linear-gradient(135deg, rgba(34, 211, 238, 0.1), rgba(34, 211, 238, 0.05));
-            border: 1px solid var(--primary);
-            color: var(--primary);
-            padding: 16px;
+            font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 1px;
-            font-weight: 600;
+            margin-bottom: 12px;
+            color: var(--text-muted);
+        }
+
+        /* Neumorphic Inputs (Inset) */
+        input[type="text"], 
+        input[type="email"], 
+        textarea, 
+        select {
+            width: 100%;
+            background: var(--input-bg);
+            border: none;
+            padding: 15px 20px;
+            font-size: 15px;
+            color: var(--text-main);
+            border-radius: 15px;
+            /* Inset Shadow for "Pressed" look */
+            box-shadow: 
+                inset 5px 5px 10px var(--shadow-dark), 
+                inset -5px -5px 10px var(--shadow-light);
+            transition: var(--transition);
+            outline: none;
+        }
+
+        textarea { resize: vertical; min-height: 120px; }
+
+        input:focus, textarea:focus {
+            box-shadow: 
+                inset 2px 2px 5px var(--shadow-dark), 
+                inset -2px -2px 5px var(--shadow-light),
+                0 0 0 2px var(--accent); /* Focus ring */
+        }
+
+        /* Star Rating */
+        .stars {
+            display: flex;
+            gap: 15px;
+            font-size: 24px;
+            cursor: pointer;
+            margin-top: 5px;
+        }
+        .star { color: var(--shadow-dark); transition: 0.2s; }
+        .star.active { color: var(--accent); text-shadow: 0 0 10px var(--accent); }
+
+        /* --- SECURE CONTACT SECTION --- */
+        .secure-contact {
+            margin-top: 30px;
+            padding: 20px;
+            border-radius: 20px;
+            background: var(--bg-color);
+            /* Subtle raised effect */
+            box-shadow: 
+                5px 5px 10px var(--shadow-dark), 
+                -5px -5px 10px var(--shadow-light);
+            text-align: center;
+        }
+
+        .secure-contact p {
             font-size: 13px;
-            border-radius: 8px;
+            color: var(--text-muted);
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+
+        .contact-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: var(--bg-color);
+            color: var(--accent);
+            text-decoration: none;
+            padding: 12px 24px;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 14px;
+            /* Raised Button */
+            box-shadow: 
+                6px 6px 12px var(--shadow-dark), 
+                -6px -6px 12px var(--shadow-light);
+            transition: var(--transition);
+            border: 1px solid transparent;
+        }
+
+        .contact-btn:hover {
+            transform: translateY(-2px);
+            color: var(--text-main);
+            border-color: var(--accent);
+        }
+
+        .contact-btn:active {
+            box-shadow: 
+                inset 4px 4px 8px var(--shadow-dark), 
+                inset -4px -4px 8px var(--shadow-light);
+            transform: translateY(0);
+        }
+
+        /* --- SUBMIT BUTTON --- */
+        .submit-btn {
+            width: 100%;
+            margin-top: 10px;
+            padding: 16px;
+            border: none;
+            border-radius: 50px;
+            background: var(--bg-color);
+            color: var(--accent);
+            font-weight: 700;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            box-shadow: 
+                6px 6px 12px var(--shadow-dark), 
+                -6px -6px 12px var(--shadow-light);
+            transition: var(--transition);
             display: flex;
             justify-content: center;
             align-items: center;
             gap: 10px;
-            cursor: pointer;
-            transition: var(--transition);
-            position: relative;
-            overflow: hidden;
         }
 
         .submit-btn:hover:not(:disabled) {
-            background: var(--primary);
-            color: var(--bg-deep);
-            box-shadow: 0 0 20px var(--primary-glow);
-            transform: translateY(-1px);
+            color: var(--bg-color);
+            background: var(--accent);
+            box-shadow: 
+                0 0 15px var(--accent); /* Glow */
         }
 
         .submit-btn:disabled {
             opacity: 0.5;
             cursor: not-allowed;
-            border-color: rgba(255,255,255,0.1);
+            box-shadow: none;
+        }
+
+        /* --- AI BOT PLACEHOLDER --- */
+        .ai-status {
+            margin-top: 20px;
+            font-size: 11px;
             color: var(--text-muted);
-        }
-
-        .footer {
-            margin-top: 32px;
             text-align: center;
-            font-size: 12px;
-            color: rgba(255,255,255,0.3);
-            border-top: 1px solid rgba(255,255,255,0.05);
-            padding-top: 20px;
+            font-family: 'JetBrains Mono', monospace;
+            opacity: 0.7;
         }
-
-        .footer a { color: var(--text-muted); text-decoration: none; transition: 0.2s; }
-        .footer a:hover { color: var(--primary); }
-
-        @keyframes pulse {
-            0% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.5; transform: scale(0.8); }
-            100% { opacity: 1; transform: scale(1); }
-        }
-
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+        .ai-dot {
+            display: inline-block;
+            width: 6px; height: 6px;
+            background: #10b981;
+            border-radius: 50%;
+            margin-right: 5px;
+            box-shadow: 0 0 5px #10b981;
         }
 
         @media (max-width: 600px) {
-            .neon-container { padding: 24px; }
-            .header-badge { width: 100%; justify-content: center; }
+            .neumorphic-card { padding: 25px; }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="neon-container">
-            <div class="status-bar"></div>
-            
-            <div class="header-badge">
-                <div class="pulse-dot"></div>
-                <span>Diagnostic Node v3.0</span>
-            </div>
-            
-            <div class="instruction-block">
-                <div style="color: var(--accent); font-size: 20px;">
-                    <i class="fas fa-triangle-exclamation"></i>
-                </div>
-                <div class="instruction-content">
-                    <h2>
-                        <i class="fas fa-terminal"></i> Protocol: Identify Liabilities
-                    </h2>
-                    <p>
-                        Select the target architecture. Outline upgrades, system flaws, or necessary fixes. Inefficiency will not be tolerated. Execute your report.
-                    </p>
-                </div>
-            </div>
-         
-            
-            <form action="https://api.web3forms.com/submit" method="POST" id="upgradeForm">
-             
-    <input type="hidden" name="access_key" value="cad2cc4f-bbbf-4286-86fd-9b4ff6651c0d">
-    <input type="hidden" name="redirect" value="thank.html">
-    
-    <input type="checkbox" name="botcheck" class="hidden" style="display: none;">
 
-    <div class="form-group">
-        <label for="serviceSelect">Target Service Architecture</label>
-        <div class="input-wrapper">
-            <select id="serviceSelect" name="Target_Service" required>
-                <option value="" disabled selected>Select System Component...</option>
-                <option value="Core Engine Latency">Core Engine Latency</option>
-                <option value="Database Schema / Memory">Database Schema / Memory</option>
-                <option value="Network Bridge Stability">Network Bridge Stability</option>
-                <option value="Custom Target">Add Custom Target</option>
-            </select>
-        </div>
-    </div>
-    
-    <div class="form-group" id="customInputGroup" style="display: none;">
-        <label for="customServiceInput">Define Custom Target</label>
-        <input 
-            type="text" 
-            id="customServiceInput" 
-            name="Custom_Target_Name"
-            placeholder="e.g., Local Hardware Bridge..."
-            autocomplete="off"
-        >
-    </div>
-    
-    <div class="form-group">
-        <label for="feedbackTextarea">Flaw / Upgrade Description</label>
-        <textarea 
-            id="feedbackTextarea" 
-            name="Flaw_Description"
-            placeholder="Detail the flaws. Provide exact parameters for the upgrade..."
-            spellcheck="false"
-            required
-        ></textarea>
-    </div>
-    
-    <button type="submit" id="executeBtn" class="submit-btn">
-        <span class="btn-text">Commit Upgrade Report</span>
-        <i class="fas fa-arrow-right-long"></i>
-    </button>
-</form>
-            <div class="footer">
-                <p>System Diagnostic Node | Secured by Web3Forms</p>
+    <div class="container">
+        <div class="neumorphic-card">
+            
+            <!-- Header with Theme Toggle -->
+            <div class="header-row">
+                <h1>Feedback Protocol</h1>
+                <div class="theme-switch-wrapper">
+                    <label class="theme-switch" for="checkbox">
+                        <input type="checkbox" id="checkbox" />
+                        <div class="slider"></div>
+                    </label>
+                </div>
             </div>
+
+            <form id="feedbackForm">
+                <!-- Web3Forms Hidden Fields -->
+                <input type="hidden" name="access_key" value="cad2cc4f-bbbf-4286-86fd-9b4ff6651c0d">
+                <input type="checkbox" name="botcheck" class="hidden" style="display: none;">
+
+                <!-- Star Rating -->
+                <div class="form-group">
+                    <label>Rate Experience</label>
+                    <div class="stars" id="starContainer">
+                        <i class="fas fa-star star" data-value="1"></i>
+                        <i class="fas fa-star star" data-value="2"></i>
+                        <i class="fas fa-star star" data-value="3"></i>
+                        <i class="fas fa-star star" data-value="4"></i>
+                        <i class="fas fa-star star" data-value="5"></i>
+                    </div>
+                    <input type="hidden" name="Rating_Score" id="ratingInput" required>
+                </div>
+
+                <!-- Text Feedback -->
+                <div class="form-group">
+                    <label for="thoughts">Your Thoughts</label>
+                    <textarea id="thoughts" name="User_Thoughts" placeholder="Describe your experience..." required></textarea>
+                </div>
+
+                <!-- Optional Contact (For follow up) -->
+                <div class="form-group">
+                    <label for="userEmail">Your Email (Optional)</label>
+                    <input type="email" id="userEmail" name="User_Email" placeholder="If you want a reply...">
+                </div>
+
+                <!-- Secure Contact Section (Replaces Image Upload) -->
+                <div class="secure-contact">
+                    <p>Need to share screenshots or sensitive logs?<br>Use our secure external channel.</p>
+                    <!-- The JS will assemble this link to hide the email from scrapers -->
+                    <a href="E_MAIL" id="secureLink" class="contact-btn">
+                        <i class="fas fa-shield-alt"></i> Open Secure Channel
+                    </a>
+                </div>
+
+                <button type="submit" id="executeBtn" class="submit-btn" disabled>
+                    <span>Transmit Report</span>
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </form>
+
         </div>
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const form = document.getElementById('feedbackForm');
-            const serviceSelect = document.getElementById('serviceSelect');
-            const customInputGroup = document.getElementById('customInputGroup');
-            const customServiceInput = document.getElementById('customServiceInput');
-            const feedbackTextarea = document.getElementById('feedbackTextarea');
-            const executeBtn = document.getElementById('executeBtn');
+        // --- 1. THEME TOGGLE LOGIC ---
+        const toggleSwitch = document.querySelector('.theme-switch input[type="checkbox"]');
+        const currentTheme = localStorage.getItem('theme');
+
+        if (currentTheme) {
+            document.documentElement.setAttribute('data-theme', currentTheme);
+            if (currentTheme === 'dark') {
+                toggleSwitch.checked = true;
+            }
+        }
+
+        function switchTheme(e) {
+            if (e.target.checked) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                localStorage.setItem('theme', 'dark');
+            } else {
+                document.documentElement.setAttribute('data-theme', 'light');
+                localStorage.setItem('theme', 'light');
+            }
+        }
+        toggleSwitch.addEventListener('change', switchTheme, false);
+
+        // --- 2. EMAIL OBFUSCATION (SECURITY) ---
+        // We construct the email dynamically so bots can't scrape it easily.
+        // REPLACE 'your-username' and 'domain.com' below.
+        const secureLink = document.getElementById('secureLink');
+        
+        secureLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            const user = "support"; // Change this
+            const domain = "gs-softwares.pages.dev"; // Change this to your actual domain/email domain
+            const subject = encodeURIComponent("Feedback / Screenshot Submission");
+            const body = encodeURIComponent("Hi,\n\nI am attaching screenshots regarding...\n\n[Attach files here]");
             
-            // Toggle custom input visibility
-            serviceSelect.addEventListener('change', function() {
-                if (this.value === 'Custom Target') {
-                    customInputGroup.style.display = 'block';
-                    customServiceInput.focus();
-                    customServiceInput.setAttribute('required', 'true');
-                } else {
-                    customInputGroup.style.display = 'none';
-                    customServiceInput.removeAttribute('required');
-                    customServiceInput.value = ''; // Clear value if hidden
-                }
+            window.location.href = `mailto:${user}@${domain}?subject=${subject}&body=${body}`;
+        });
+
+        // --- 3. STAR RATING LOGIC ---
+        const stars = document.querySelectorAll('.star');
+        const ratingInput = document.getElementById('ratingInput');
+        const executeBtn = document.getElementById('executeBtn');
+        const thoughts = document.getElementById('thoughts');
+
+        stars.forEach(star => {
+            star.addEventListener('click', () => {
+                const val = star.getAttribute('data-value');
+                ratingInput.value = val;
+                updateStars(val);
                 validateForm();
             });
-            
-            // Validate form on input changes
-            [serviceSelect, customServiceInput, feedbackTextarea].forEach(input => {
-                input.addEventListener('input', validateForm);
-            });
-            
-            function validateForm() {
-                const service = serviceSelect.value;
-                const customService = customServiceInput.value.trim();
-                const feedback = feedbackTextarea.value.trim();
-                
-                let isValid = false;
-                
-                if (service && feedback) {
-                    if (service === 'Custom Target') {
-                        isValid = !!customService;
-                    } else {
-                        isValid = true;
-                    }
-                }
-                
-                executeBtn.disabled = !isValid;
-            }
-            
-            // Handle Form Submission via AJAX
-            form.addEventListener('submit', function(e) {
-                e.preventDefault();
-                
-                const originalBtnContent = executeBtn.innerHTML;
-                
-                // UI Loading State
-                executeBtn.disabled = true;
-                executeBtn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Transmitting Data...';
-                executeBtn.style.borderColor = 'var(--text-muted)';
-                
-                const formData = new FormData(form);
-                const object = Object.fromEntries(formData);
-                const json = JSON.stringify(object);
-                
-                fetch('https://api.web3forms.com/submit', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json'
-                    },
-                    body: json
-                })
-                .then(async (response) => {
-                    if (response.status === 200) {
-                        // Success State
-                        executeBtn.style.background = '#10b981'; // Green
-                        executeBtn.style.borderColor = '#10b981';
-                        executeBtn.style.color = '#fff';
-                        executeBtn.innerHTML = '<i class="fas fa-check"></i> Report Logged Successfully';
-                        
-                        // Reset form after delay
-                        setTimeout(() => {
-                            executeBtn.innerHTML = originalBtnContent;
-                            executeBtn.style.background = '';
-                            executeBtn.style.borderColor = '';
-                            executeBtn.style.color = '';
-                            executeBtn.disabled = true;
-                            form.reset();
-                            customInputGroup.style.display = 'none';
-                        }, 3000);
-                    } else {
-                        console.log(response);
-                        alert("Transmission Failed. Please try again.");
-                        executeBtn.disabled = false;
-                        executeBtn.innerHTML = originalBtnContent;
-                    }
-                })
-                .catch(error => {
-                    console.log(error);
-                    alert("Network Error. Check connection.");
-                    executeBtn.disabled = false;
-                    executeBtn.innerHTML = originalBtnContent;
-                });
-            });
         });
-         const serviceSelect = document.getElementById('serviceSelect');
-    const customInputGroup = document.getElementById('customInputGroup');
-    const customServiceInput = document.getElementById('customServiceInput');
-    const feedbackTextarea = document.getElementById('feedbackTextarea');
-    const executeBtn = document.getElementById('executeBtn');
 
-    // 1. Logic to show/hide the Custom Target field
-    serviceSelect.addEventListener('change', function() {
-        if (this.value === 'Custom Target') {
-            customInputGroup.style.display = 'block';
-            customServiceInput.setAttribute('required', 'required');
-        } else {
-            customInputGroup.style.display = 'none';
-            customServiceInput.removeAttribute('required');
+        function updateStars(value) {
+            stars.forEach(s => {
+                const sVal = parseInt(s.getAttribute('data-value'));
+                if (sVal <= parseInt(value)) {
+                    s.classList.add('active');
+                } else {
+                    s.classList.remove('active');
+                }
+            });
         }
-    });
 
-    // 2. Simple Validation to enable/disable button based on textarea
-    feedbackTextarea.addEventListener('input', function() {
-        if (this.value.trim().length > 5) {
-            executeBtn.disabled = false;
-        } else {
-            executeBtn.disabled = true;
+        // --- 4. FORM VALIDATION & SUBMISSION ---
+        function validateForm() {
+            const hasRating = ratingInput.value !== '';
+            const hasThoughts = thoughts.value.trim().length > 0;
+            executeBtn.disabled = !(hasRating && hasThoughts);
         }
-    });
-    
-    // Initialize button state
-    executeBtn.disabled = true;
+
+        thoughts.addEventListener('input', validateForm);
+
+        // AJAX Submission (No Redirect)
+        document.getElementById('feedbackForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const btn = document.getElementById('executeBtn');
+            const originalText = btn.innerHTML;
+            
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Transmitting...';
+
+            const formData = new FormData(this);
+            
+            try {
+                const response = await fetch('https://api.web3forms.com/submit', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+                
+                if (response.status === 200) {
+                    btn.style.background = '#10b981'; // Success Green
+                    btn.style.color = '#fff';
+                    btn.innerHTML = '<i class="fas fa-check"></i> Received';
+                    this.reset();
+                    updateStars(0);
+                    setTimeout(() => {
+                        btn.style.background = '';
+                        btn.style.color = '';
+                        btn.innerHTML = originalText;
+                        btn.disabled = true;
+                    }, 3000);
+                } else {
+                    alert('Error: ' + result.message);
+                    btn.disabled = false;
+                    btn.innerHTML = originalText;
+                }
+            } catch (error) {
+                console.error(error);
+                alert('Network Error. Please try again.');
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+            }
+        });
     </script>
 </body>
 </html>
